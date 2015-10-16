@@ -3,46 +3,46 @@ using System.Collections;
 
 public class PickUp : MonoBehaviour {
     Rigidbody obj;
+    public GameObject gun, picksquare;
+    RaycastHit hit;
     bool pickedup, canpickup;
     short clicks=0;
-    void OnTriggerEnter(Collider col)
-    {
-            if ((col.gameObject.name == "Box(Clone)" || col.gameObject.name == "Box")&& clicks ==0)
-            {
-                //print("hit");
-                obj = col.gameObject.GetComponent<Rigidbody>();
-                canpickup = true;
-            }
-    }
-    void OnTriggerExit(Collider col)
-    {
-        if ((col.gameObject.name == "Box(Clone)"|| col.gameObject.name == "Box") && !pickedup)
-        {
-            //print("leave");
-            canpickup = false;
-        }
-    }
+    Collider col;
     void Pickedup()
     {
-        if (Input.GetKeyDown(KeyCode.E)&& obj !=null){
-            if (!pickedup)
+        Vector3 fwd = transform.TransformDirection(Vector3.forward);
+        Debug.DrawRay(gun.transform.position, fwd * 2, Color.white, 5f);
+        if (Physics.Raycast(gun.transform.position, fwd * 2, out hit, 2f))
+        {
+            if ((hit.collider.gameObject.name == "Box(Clone)" || hit.collider.gameObject.name == "Box" || hit.collider.gameObject.name == "Box 2"))
+            {
+                obj = hit.collider.gameObject.GetComponent<Rigidbody>();
+                canpickup = true;
+            }
+            else canpickup = false;
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+
+            if (!pickedup && canpickup && obj!=null)
             {
                 obj.GetComponent<Rigidbody>().useGravity = false;
                 obj.GetComponent<Rigidbody>().freezeRotation = true;
                 //obj.GetComponent<BoxCollider>().enabled = false;
-                obj.transform.position = transform.position;
-                obj.transform.rotation = transform.rotation;
+                obj.transform.position = picksquare.transform.position;
+                obj.transform.rotation = picksquare.transform.rotation;
                 pickedup = true;
                 clicks = 1;
             }
             else if (pickedup)
             {
                 obj.GetComponent<Rigidbody>().useGravity = true;
-               // obj.GetComponent<BoxCollider>().enabled = true;
+                // obj.GetComponent<BoxCollider>().enabled = true;
                 obj.GetComponent<Rigidbody>().freezeRotation = false;
                 pickedup = false;
                 clicks = 0;
                 obj.velocity = transform.TransformDirection(new Vector3(0, 0, 10));
+                obj = null;
             }
         }
     }
@@ -50,8 +50,8 @@ public class PickUp : MonoBehaviour {
         Pickedup();
         if (pickedup)
         {
-            obj.transform.position = transform.position;
-            obj.transform.rotation = transform.rotation;
+            obj.transform.position = picksquare.transform.position;
+            obj.transform.rotation = picksquare.transform.rotation;
         }
     }
 }
